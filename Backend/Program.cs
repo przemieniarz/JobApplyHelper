@@ -1,5 +1,5 @@
 using Backend.Data;
-using Backend.Db.Models;
+using Backend.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -18,7 +18,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 builder.Services.AddIdentityApiEndpoints<AppUser>()
- .AddRoles<IdentityRole>()
+ .AddRoles<IdentityRole<Guid>>()
  .AddEntityFrameworkStores<AppDbContext>();
 
 var app = builder.Build();
@@ -37,7 +37,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapIdentityApi<IdentityUser>();
+app.MapIdentityApi<AppUser>();
 
 app.MapControllers();
 
