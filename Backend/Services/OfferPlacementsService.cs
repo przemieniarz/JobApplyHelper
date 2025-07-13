@@ -4,6 +4,8 @@ using Backend.Services.Extensions;
 using Backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Dynamic.Core;
+
 using OfferPlacementApi = Backend.Api.Models.OfferPlacement;
 
 namespace Backend.Services;
@@ -45,6 +47,7 @@ public class OfferPlacementsService(AppDbContext dbContext) : IOfferPlacementsSe
         offerPlacement.Region = request.Region;
         offerPlacement.ModifiedDate = DateTimeOffset.Now;
 
+        //todo add modifieddate validation
         await dbContext.SaveChangesAsync(cancelationToken);
 
         var response = new OfferPlacementApi.UpdateResponse
@@ -74,17 +77,33 @@ public class OfferPlacementsService(AppDbContext dbContext) : IOfferPlacementsSe
         return response;
     }
 
-    public Task<OfferPlacementApi.GetAllResponse> GetAllAsync(OfferPlacementApi.GetAllRequest request,
+    public async Task<OfferPlacementApi.GetAllResponse> GetAllAsync(OfferPlacementApi.GetAllRequest request,
         CancellationToken cancelationToken)
     {
-        //filtering
         var query = dbContext.OfferPlacements.AsQueryable();
-        FilterQuery(query, request);
 
-        //sorting
-        
+        query = FilterQuery(query, request);
+        var totalRows = await query.CountAsync(cancelationToken);
 
-        //paginacja i wyciaganie all
+        query = SortQuery(query, request);
+        query = PaginateQuery(query, request);
+
+        var offerPlacements = await query.ToListAsync(cancelationToken);
+
+        var offerPlacementsMapped = offerPlacements
+            .Select(op => new OfferPlacementApi.GetAllOneItemResponse
+            {
+                Id = op.Id,
+                Name = op.Name,
+                Region = op.Region,
+                ModifiedDate = op.ModifiedDate,
+            }).ToList();
+
+        return new OfferPlacementApi.GetAllResponse
+        {
+            Items = offerPlacementsMapped,
+            TotalRows = totalRows,
+        };
     }
 
     private async Task<OfferPlacement> GetByIdAsync(Guid id, CancellationToken cancelationToken)
@@ -100,29 +119,49 @@ public class OfferPlacementsService(AppDbContext dbContext) : IOfferPlacementsSe
         return offerPlacement;
     }
 
-    private static void FilterQuery(IQueryable<OfferPlacement> query,
+    private static IQueryable<OfferPlacement> FilterQuery(IQueryable<OfferPlacement> query,
         OfferPlacementApi.GetAllRequest request)
     {
         if (!string.IsNullOrEmpty(request.NameInclude))
         {
-            query = query.Where(q => q.NormalizedName.Contains(request.NameInclude));
+            query = query.Where(q => q.Name.ToLower().Contains(request.NameInclude.ToLower()));
         }
 
         if (request.RegionInclude != null)
         {
             query = query.Where(q => q.Region == request.RegionInclude);
         }
+
+        return query;
     }
 
-    private static void SortQuery(IQueryable<OfferPlacement> query,
+    private static IQueryable<OfferPlacement> SortQuery(IQueryable<OfferPlacement> query,
         OfferPlacementApi.GetAllRequest request)
     {
         if (request.SortBy == null || request.SortOrder == null)
         {
-            return;
+            return query;
         }
 
         var direction = request.SortOrder.ToDirectionString();
-        _ = query.OrderBy($"{request.SortBy} {direction}");
+        
+        query = query.OrderBy($"{request.SortBy} {direction}");
+
+        return query;
+    }
+
+    private static IQueryable<OfferPlacement> PaginateQuery(IQueryable<OfferPlacement> query,
+        OfferPlacementApi.GetAllRequest request)
+    {
+        if (request.PageOffset == null || request.PageLimit == null)
+        {
+            return query;
+        }
+
+        query = query
+            .Skip((int)request.PageOffset)
+            .Take((int)request.PageLimit);
+
+        return query;
     }
 }

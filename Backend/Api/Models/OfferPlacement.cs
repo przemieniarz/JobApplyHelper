@@ -47,7 +47,11 @@ public class OfferPlacement
     {
     }
 
-    public class GetAllResponse : BaseGetAllResponse<BaseExtended>
+    public class GetAllResponse : BaseGetAllResponse<GetAllOneItemResponse>
+    {
+    }
+
+    public class GetAllOneItemResponse : BaseExtended
     {
     }
 }

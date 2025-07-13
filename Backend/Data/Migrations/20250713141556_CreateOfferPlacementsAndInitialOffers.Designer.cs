@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250711183150_CreateOfferAndOfferPlacement")]
-    partial class CreateOfferAndOfferPlacement
+    [Migration("20250713141556_CreateOfferPlacementsAndInitialOffers")]
+    partial class CreateOfferPlacementsAndInitialOffers
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -103,7 +103,7 @@ namespace Backend.Data.Migrations
                     b.Property<string>("Company")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset>("CreationDate")
+                    b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset>("ModifiedDate")
@@ -144,7 +144,7 @@ namespace Backend.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset>("CreationDate")
+                    b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset>("ModifiedDate")

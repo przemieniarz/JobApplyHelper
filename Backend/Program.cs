@@ -1,12 +1,14 @@
 using Backend.Data;
 using Backend.Data.Models;
+using Backend.Services;
+using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddTransient<IOfferPlacementsService, OfferPlacementsService>();
 
 builder.Services.AddControllers();
 
