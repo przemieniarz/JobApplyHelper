@@ -1,12 +1,14 @@
 using Backend.Data;
-using Backend.Db.Models;
+using Backend.Data.Models;
+using Backend.Services;
+using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddTransient<IOfferPlacementsService, OfferPlacementsService>();
 
 builder.Services.AddControllers();
 
@@ -18,7 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 builder.Services.AddIdentityApiEndpoints<AppUser>()
- .AddRoles<IdentityRole>()
+ .AddRoles<IdentityRole<Guid>>()
  .AddEntityFrameworkStores<AppDbContext>();
 
 var app = builder.Build();
@@ -37,7 +39,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapIdentityApi<IdentityUser>();
+app.MapIdentityApi<AppUser>();
 
 app.MapControllers();
 

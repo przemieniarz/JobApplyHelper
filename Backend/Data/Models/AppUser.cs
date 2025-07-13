@@ -1,9 +1,7 @@
-﻿using Backend.Data.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
-namespace Backend.Db.Models;
+namespace Backend.Data.Models;
 
-public class AppUser : IdentityUser
+public class AppUser : IdentityUser<Guid>
 {
-    public string Nickname { get; set; } = string.Empty;
 }
