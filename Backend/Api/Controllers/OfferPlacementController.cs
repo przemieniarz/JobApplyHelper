@@ -2,13 +2,11 @@
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace Backend.Api.Controllers;
 [Route("admin/[controller]s")]
 [ApiController]
 public class OfferPlacementController(IOfferPlacementsService offerPlacementService) : ControllerBase
 {
-
     [HttpPost]
     public Task<OfferPlacement.CreateResponse> CreateAsync([FromBody] OfferPlacement.CreateRequest request,
         CancellationToken cancelationToken)
@@ -41,6 +39,4 @@ public class OfferPlacementController(IOfferPlacementsService offerPlacementServ
         var response = offerPlacementService.GetAllAsync(request, cancelationToken);
         return response;
     }
-
-    
 }
