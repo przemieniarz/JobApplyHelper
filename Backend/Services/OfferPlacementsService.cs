@@ -1,9 +1,10 @@
 ﻿using Backend.Data;
 using Backend.Data.Models;
+using Backend.ExceptionHandlers.Constants;
+using Backend.ExceptionHandlers.Exceptions;
 using Backend.Services.Extensions;
 using Backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 
 using OfferPlacementApi = Backend.Api.Models.OfferPlacement;
@@ -113,7 +114,8 @@ public class OfferPlacementsService(AppDbContext dbContext) : IOfferPlacementsSe
 
         if (offerPlacement == null)
         {
-            throw new ValidationException($"Offer placement with id {id} doesnt exist");
+            throw new NotFoundException(
+                string.Format(ExceptionMessages.EntityWithIdDoesntExist, nameof(OfferPlacement), id));
         }
 
         return offerPlacement;

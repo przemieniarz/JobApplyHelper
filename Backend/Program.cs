@@ -1,5 +1,6 @@
 using Backend.Data;
 using Backend.Data.Models;
+using Backend.ExceptionHandlers;
 using Backend.Services;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +10,13 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<IOfferPlacementsService, OfferPlacementsService>();
+
+builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
+builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
+builder.Services.AddExceptionHandler<ConflictExceptionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+builder.Services.AddProblemDetails();
 
 builder.Services.AddControllers();
 
@@ -36,6 +44,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler();
 
 app.UseAuthentication();
 app.UseAuthorization();
